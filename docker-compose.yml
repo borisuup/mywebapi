@@ -1,0 +1,54 @@
+version: "3"
+services:
+  mywebapi:
+    image: borisuup/mywebapi:1.2
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          cpus: "0.1"
+          memory: 50M
+      restart_policy:
+        condition: on-failure
+    ## volumes:
+    ##   - "~/mywebapi/appsettings.json:/app/appsettings.json"
+    ports:
+      - "8001:8001"
+    networks:
+      - webnet
+  visualizer:
+    image: dockersamples/visualizer:stable
+    ports:
+      - "8002:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+    networks:
+      - webnet
+  mongo:
+    ##  container_name: mongo
+    image: mongo
+    ports:
+      - "27017:27017"
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+    volumes:
+      - "~/mywebapi/mongo:/data/db"
+    networks:
+      - webnet
+  mongo-express:
+    image: mongo-express
+    ports:
+      - "8003:8081"
+    deploy:
+      placement:
+        constraints: [node.role == worker]
+    ## links:
+    ##   - mongo
+    networks:
+      - webnet
+networks:
+  webnet:
