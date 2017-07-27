@@ -11,10 +11,10 @@ namespace MyWebApi.Controllers
      [Route("api/[controller]")]
     public class OrdersController : Controller
     {
-        private IOptions<OrdersOptions> _optionsAccessor;
+        private IOptionsSnapshot<OrdersOptions> _optionsAccessor;
         private MongoOrderDataProvider _repo;
 
-        public OrdersController(IOptions<OrdersOptions> optionsAccessor)
+        public OrdersController(IOptionsSnapshot<OrdersOptions> optionsAccessor)
         {
             _optionsAccessor = optionsAccessor;
             _repo = new MongoOrderDataProvider(optionsAccessor.Value.ConnectionString);

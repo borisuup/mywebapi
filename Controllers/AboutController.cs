@@ -9,8 +9,8 @@ namespace MyWebApi.Controllers
      [Route("api/[controller]")]
     public class AboutController : Controller
     {
-        IOptions<AboutOptions> _optionsAccessor;
-        public AboutController(IOptions<AboutOptions> optionsAccessor)
+        IOptionsSnapshot<AboutOptions> _optionsAccessor;
+        public AboutController(IOptionsSnapshot<AboutOptions> optionsAccessor)
         {
             _optionsAccessor = optionsAccessor;
         }

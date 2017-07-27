@@ -1,6 +1,31 @@
-version: "3"
+version: "3.3"
+
 services:
+  mongo:
+    image: mongo:3.5
+    ports:
+      - "27017:27017"
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+    volumes:
+      - "/app/mongo:/data/db"
+    networks:
+      - webnet
+  mongo-express:
+    depends_on:
+      - mongo
+    image: mongo-express:0.40
+    ports:
+      - "8002:8081"
+    deploy:
+      placement:
+        constraints: [node.role == worker]
+    networks:
+      - webnet
   mywebapi:
+    depends_on:
+      - mongo
     image: borisuup/mywebapi:1.2
     deploy:
       replicas: 3
@@ -10,16 +35,17 @@ services:
           memory: 50M
       restart_policy:
         condition: on-failure
-    ## volumes:
-    ##   - "~/mywebapi/appsettings.json:/app/appsettings.json"
     ports:
       - "8001:8001"
+    configs:
+      - source: appsettings
+        target: /app/appsettings.json
     networks:
       - webnet
   visualizer:
     image: dockersamples/visualizer:stable
     ports:
-      - "8002:8080"
+      - "8003:8080"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
     deploy:
@@ -27,28 +53,8 @@ services:
         constraints: [node.role == manager]
     networks:
       - webnet
-  mongo:
-    ##  container_name: mongo
-    image: mongo
-    ports:
-      - "27017:27017"
-    deploy:
-      placement:
-        constraints: [node.role == manager]
-    volumes:
-      - "~/mywebapi/mongo:/data/db"
-    networks:
-      - webnet
-  mongo-express:
-    image: mongo-express
-    ports:
-      - "8003:8081"
-    deploy:
-      placement:
-        constraints: [node.role == worker]
-    ## links:
-    ##   - mongo
-    networks:
-      - webnet
 networks:
   webnet:
+configs:
+  appsettings:
+    file: /app/mywebapi/appsettings.json
